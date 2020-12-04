@@ -8,5 +8,5 @@
 # the shell interpreter ignores that line because a '#' 
 # is a comment in many languaes
 
-jp2a --colors snake_1f40d.png 
+jp2a --colors snake_1f40d.jpg 
 figlet "found me!"

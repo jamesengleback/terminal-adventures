@@ -10,15 +10,17 @@
 - installing anaconda python
 
 ## using this tutorial
-```git clone ...```
-```cd ...```
+```git clone https://github.com/jamesengleback/terminal-adventures.git
+```cd terminal-adventures```
 
 ## command structure
 ```prompt``` ```program``` ```options``` ```file input```
+
 ```[user@machine][~/Documents] $ vlc film.mp4```
+
 options to programs are usually specified with ```-<letter>``` or ```--<word-no-spaces>```
-```[james@thinkpad] [~] ❱❱```
-```pandoc -i readme.md -o readme.pdf --pdf-engine=xelatex```
+
+```[james@thinkpad] [~] ❱❱ pandoc -i readme.md -o readme.pdf --pdf-engine=xelatex```
 
 ## getting help
 although options vary between programs, most programs have the option ```--help``` - which shows options. 
@@ -34,6 +36,10 @@ although options vary between programs, most programs have the option ```--help`
 
 ## useful syntax & keybindings
 * ```clear``` or ```ctrl + l``` - clear text on screen
+* ```↑``` go up through command history
+* ```history``` show command history
+* ```!<command-history-number>``` run a command in history
+* ```htop``` - show system stats & processes (if htop is installed) - ```q``` to quit
 * ```<command> &``` run the command in the background - useful for commands that take a long time!
 * ```ctrl + c``` - cancel command
 * ```ctrl + shift + c``` copy text to clipboard - ```ctrl + shift + v``` to paste
@@ -41,7 +47,7 @@ although options vary between programs, most programs have the option ```--help`
 * ```*``` - wild card character. e.g. ```ls *.py``` will list any file that ends in ```.py``` 
 
 ## navigating filesystems
-in unix systems, files are organized into a tree. check out the structure of this file system by running ```tree``` in this file system. the directory our shell is "in" is generally shown in the prompt. we can also check where we are by running ```pwd``` (print working directory). 
+in unix systems, files are organized into a tree. check out the structure of this file system by running ```tree``` (if installed) in this file system. the directory our shell is "in" is generally shown in the prompt. we can also check where we are by running ```pwd``` (print working directory). 
 * **ls** - use ```ls``` to see the contents of the directory we're in, and ```ls -a``` to see hidden files (which start with a ```.```) ```ls -l``` shows us the long listing format of the files, which includes the permissions of the files (who can read, edit or execute), the file size in bytes (add the option ```-h``` to make the format more human readable), and the owners.
 * **cd** - change directory. run ```cd <folder/directory>``` to change directory to a particular directory. ```cd ..``` takes us up a level in the file tree. we can jump to somewhere specific by specifying a full path like this: ```cd ~/documents/python-club/tutorials``` - autocomplete comes in really handy here. ```cd``` with no arguments takes us home. home (aka ```~```) is at ```/home/<your-username>```. the tilde ```~``` is a useful shortcut to writing /home/<your-username>```. try going up a few levels with ```cd ..``` - what's above us? how far can we go? what's at the root of the file system? how can we get home?
 * ```mkdir <new-dir-name>``` - makes a new directory. try making a ```documents``` folder. ```rmdir <dir-name>``` will remove an empty directory.
@@ -56,7 +62,7 @@ some programs are already executable. ```ls -l``` shows us what is executable, e
 run an executable like this ```./hello``` (if it's in your working directory, otherwise just give the path to the executable like ```../hello```). 
 ```hello``` is a binary file. you can tell by running ```file hello```. use ```cat``` to output the contents of the file to the terminal - what does it look like? nice? how about if we run ```hexdump hello```? 
 
-I've put another program in the file system. can you find it? run it! what happens? what sort of file is it? use ```cat <file>``` to show the contents. what language is it? 
+I've put another program in the file system - ```run-me.sh```. can you find it? run it! what happens? what sort of file is it? use ```cat <file>``` to show the contents. what language is it? 
 
 running ```python``` files :snake: -- if we don't have a shebang specifying which python interpreter to use (sometimes we have a few different ones installed), we can run a python file like ```python file.py```
 ## writing and editing programs
