@@ -10,7 +10,8 @@
 - installing anaconda python
 
 ## using this tutorial
-```git clone https://github.com/jamesengleback/terminal-adventures.git
+```git clone https://github.com/jamesengleback/terminal-adventures.git```
+
 ```cd terminal-adventures```
 
 ## command structure
