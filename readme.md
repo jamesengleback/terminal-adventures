@@ -15,9 +15,10 @@
 
 ## command structure
 ```prompt``` ```program``` ```options``` ```file input```
-```[user@machine][~/Documents] $```vlc film.mp4```
+```[user@machine][~/Documents] $ vlc film.mp4```
 options to programs are usually specified with ```-<letter>``` or ```--<word-no-spaces>```
-```[james@thinkpad] [~] ❱❱``` ```pandoc -i readme.md -o readme.pdf --pdf-engine=xelatex```
+```[james@thinkpad] [~] ❱❱```
+```pandoc -i readme.md -o readme.pdf --pdf-engine=xelatex```
 
 ## getting help
 although options vary between programs, most programs have the option ```--help``` - which shows options. 
