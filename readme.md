@@ -143,7 +143,7 @@ anaconda is a distribution of python that comes with the ```conda``` package man
 - ```conda``` has a built-in environment manager. environments are fresh installs of python, isolated from your other environments. this is useful when using python packages that conflict with your day-to-day packages, or when checking out someone elses code.
 
 ## download and install anaconda
-[this page](https://docs.conda.io/en/latest/miniconda.html) contains miniconda installers (minimal install anaconda) - use ```wget``` or ```curl``` to download a python 3 installer. It should give you a shell script. Take a look inside. execute this file to run the interactive installer.  
+[this page](https://docs.conda.io/en/latest/miniconda.html) contains miniconda installers (minimal install anaconda) - use ```wget``` or ```curl``` to download a python 3 installer. It should give you a shell script. Take a look inside. execute this file to run the interactive installer. run ```conda init``` and restart your shell session.
 
 run ```which python``` again to see where we're running python from now. how about ```which python3```
 
@@ -151,14 +151,98 @@ run ```which python``` again to see where we're running python from now. how abo
 
 - I've hidden the word ```SECRET``` in the maze somewhere - find it
 
+# seassion 3
 
+# ```apropos``` - search ```man``` pages for keywords
+```$ apropos media``` search for media players
 
+# alias - command shortcuts
+```alias rip=youtube-dl -x -q --audio-format mp3``` creates a shortcut to a youtube downloader to extract audio from a url. 
+```$ rip https://youtube.com/fhuriseaothu``` 
+the alias will be lost when the terminal session ends. to make persistent aliases, alias creation commands can be put in scripts that run every time a session starts like ```~/.bashrc``` 
+
+## challenge 
+- download the gzipped pdb structure 4KEY [https://www.rcsb.org/structure/4KEY](https://www.rcsb.org/structure/4KEY) 
+- use ```apropos``` and ```man``` to find out how to inflate the file
+- install ```mmterm``` [https://github.com/jgreener64/mmterm](https://github.com/jgreener64/mmterm) and use it to see the structure!!
 
 ## scp - secure copy
-securely send files over a network via ```ssh```  - e.g. from your local machine to a remote one, or visa versa. 
-## syntax
+securely send files over a network via ```ssh```  - e.g. from your local machine to a remote one, or visa versa.
 copy file to a remote host - path
 ```scp <path/to/local/file> [user@]host:[path/to/remote/copy]```
+e.g.
+```scp new.py james@1.1.1.1:~/Documents/code```
 
 copy file from a remote host 
 ```scp [user@]host:[path/to/file] /path/to/destination```
+e.g.
+```scp james@1.1.1.1:~/Documents/results.csv .```
+## gzip
+it's often worth compressing files before sending them over a network. ```gzip <file>``` will compress ```<file>``` in a gzip ```.gz``` format ```gunzip <file>``` unzips gzip files.
+
+## task
+use scp to download ```4KEY.pdb``` to view locally with a gui program like [pymol](https://pymol.org/2/) or [chimera](https://www.cgl.ucsf.edu/chimera/)
+
+# installing python packages
+## pip
+Written in python, **P**ip **I**nstalls **P**ackages either from [pypi](https://pypi.org/) or from a local copy. ```pip``` has a simple inerface:
+```pip install <package-name>``` to install from pypi
+```pip install . ``` to search current directory for installation files & install
+```pip uninstall <package-name>```
+```pip install -r requirements.txt``` - where ```requirements.txt``` is a list of packages to install
+![](/pix/pypi.png)
+- install ipython
+## conda
+conda - the package manager for the anaconda python distribution, enjoys some advantages over pip. One is that it automatically searches for dependency issues with the packages you're installing and resolves them. It can also install non-python projects, which includes many important scientific packages.
+```conda search <package-name>```
+```conda install <package-name>```
+```conda install <package-name> -c <channel-name>``` - some packages are only available from certain channels 
+```conda list``` - list of packages installed with anaconda
+e.g.
+```conda install rdkit -c rdkit```
+```conda install openbabel -c conda-forge```
+```conda install autodock-vina -c bioconda```
+## environments
+an environment is where the python interpreter looks to import packages, for example if I'm experimenting with a package with obscure dependencies that clash with my usual packages then I might set up a new environment to install these packages insulatyed from the rest of he system.
+```conda env list``` - list conda environments
+```conda create -n <new-env-name>``` - create a blank environment
+```conda activate <env-name>``` 
+```conda deactivate``` deactivate current environment
+```conda remove -n <env-name>```
+```conda create -f <env-file>``` create environment from specification file (e.g. ```env.yml```)
+
+## ipython
+the ```ipython``` shell is in interactive python shell that can be installed with ```pip```. ```ipython``` can support notebooks too, which is why it is the foundation of jupyter notebooks.
+
+```ipython``` is ideal for quick jobs in python, like tests, checking out data and finding out how to use a function. it also supports some shell commands like ```pwd``` ```ls``` ```cd ...``` natively. to run **any** shell command in ipython, prepend it with a ```!``` e.g. ```! tree```.
+
+```ipython``` also has useful features for getting help with commands - append a ```?``` to a python command (e.g. ```pandas.DataFrame?``` to access docstrings assosciated with that command. it also has autocomplete <3
+
+## challenge
+This challenge revolves around installation with ```pip``` and ```conda``` and the ```ipython``` shell.
+
+I've been developing a python package for enzyme design called [enz](https://github.com/UoMMIB/enz) - it uses a template enzyme structure, and allows you to mutate and then "refold" the enzyme using [pyrosetta](http://www.pyrosetta.org/dow) for structure prediction. It also allows you to "dock" a molecule to a specified site in the structure, which is a simulation of how a compound might bind. to do this, it uses a program called [autodock vina](http://vina.scripps.edu/)
+
+unfortuneately, installation is a nightmare at the moment! so here's the challenge: clone the ```enz``` repository with ```git clone https://github.com/UoMMIB/enz```
+
+to install ```enz``` we should install all the dependencies. 
+- what are the dependenceies & how can we make sure the right versions?
+- how do we install pyrosetta?
+- and how do we install ```enz``` itself
+
+### ```enz``` in ```ipython```
+there's some half-completed documentatin for ```enz``` in its readme.md. if we launch ```ipython``` we can navigate to a ```pdb``` file and start engineering the protein like this:
+```python
+>>> import enz
+>>> p = enz.protein('1jme.pdb')
+>>> p.mutate(44,'a') # case insensitive
+>>> p.muate(99,'f') # no limit on number of mutations
+>>> p.refold()
+>>> p.save(...)
+>>> results = p.dock('CCCCCCCC=O', target_resudues = [1,2,3,4,5])
+>>> print(results.scores)
+>>> results.save(...)
+```
+
+
+
