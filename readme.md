@@ -118,6 +118,10 @@ there's a python file in this file system. it contains errors. find it, correct 
 Quick definitions
 - ```stdout``` - standard output of a program, by default it writes to the terminal. e.g. ```cat readme.md``` outputs the contents of ```readme.md``` to the terminal. ```stdout``` can be **redirected** to a file with the ```>``` (write) or ```>>``` (append) operators like this: ```cat readme.md > readme2.md``` (creates new file or overwrites an existing one, fills it with the output of ```cat readme.md```. to append to a file (add to the end without overwriting it) use ```>>```, e.g. ```echo "some more text >> readme2.md"``` redirects the output of the ```echo``` command (print) to append ```readme2.md```.
 - ```stdin``` - standard input to a program when redirected from another program. Output from one program is **piped** into another using the ```|``` pipe operator. e.g. ```ls | wc``` redirects the output from ```ls``` (the directory listing) into ```wc``` - word count. Piping is a key feature of unix-based systems like mac and linux, it allows small, simple programs to work together effectively.
+- ```stderr``` - standard error - error messages of a program. By default these write to the terminal too. we can control the ```stdout``` and ```stderr``` individually using their numbers. ```stdout``` is ```1``` and ```stderr``` is ```2```, so we can run a command like ```find /home -name python 1>results 2>errors``` to redirect the ```stdout``` to the file ```results``` and ```stderr``` to ```errors```. To throw away an output, direct it to ```/dev/null```, where data is discarded.
+
+## background tasks with ```&```
+append ```&``` to the end of a command to run it in the background, which will allow you to coontinue typing whilst it works. If output is not redirected, then it will appear in your terminal still. run ```ps``` to see the processes that your shell is running. If your shell session ends, then the job will be cancelled, unless you ```disown``` your jobs, and they will continue evan after you disconnect.
 
 ### aside: unix & the unix philosophy
 unix was an early operating system developed in Bell Labs in the 1970's that emphasized minimal and modular programs that do one job well, and play together nicely. unix has had a huge impact on computing, today macOS and linux (& a few others) borrow heavily from unix. one product of the unix era was the POSIX standards - a standardisation of operating systems & shell interfaces to maintain compatibility between them.  Becasue of the POSIX standards, linux and macOS terminals are similar! read [the cathedral and the bazaar](http://www.catb.org/~esr/writings/cathedral-bazaar/) for insights to the unix philosophy ands open source software.
@@ -190,7 +194,9 @@ Written in python, **P**ip **I**nstalls **P**ackages either from [pypi](https://
 ```pip install . ``` to search current directory for installation files & install
 ```pip uninstall <package-name>```
 ```pip install -r requirements.txt``` - where ```requirements.txt``` is a list of packages to install
+
 ![](/pix/pypi.png)
+
 - install ipython
 ## conda
 conda - the package manager for the anaconda python distribution, enjoys some advantages over pip. One is that it automatically searches for dependency issues with the packages you're installing and resolves them. It can also install non-python projects, which includes many important scientific packages.
@@ -233,15 +239,39 @@ to install ```enz``` we should install all the dependencies.
 ### ```enz``` in ```ipython```
 there's some half-completed documentatin for ```enz``` in its readme.md. if we launch ```ipython``` we can navigate to a ```pdb``` file and start engineering the protein like this:
 ```python
->>> import enz
->>> p = enz.protein('1jme.pdb')
->>> p.mutate(44,'a') # case insensitive
->>> p.muate(99,'f') # no limit on number of mutations
->>> p.refold()
->>> p.save(...)
->>> results = p.dock('CCCCCCCC=O', target_resudues = [1,2,3,4,5])
->>> print(results.scores)
->>> results.save(...)
+In [1]: import enz
+
+In [2]: p = enz.protein('1jme.pdb')
+
+In [3]: p.mutate(100,'v')
+
+In [4]: p.mutate(105,'s')
+
+In [5]: p.refold()
+
+In [6]: p.save(...)
+
+In [7]: results = p.dock('CCCCC=O',target_residues=[100,200,300,400])
+
+In [8]: results.scores
+Out[8]:
+   mode  affinity (kcal/mol)  dist from best mode - rmsd - ub  dist from best mode - lb
+0   1.0                 -4.6                            0.000                     0.000
+1   2.0                 -4.3                            3.092                     3.322
+
+In [9]: results.save(...)
+
+In [10]: results.poses[0].df
+Out [10]:   
+record_name  atom_number blank_1  ... element_symbol
+0        ATOM            1          ...              C
+1        ATOM            2          ...              C
+
+In [11]: p.df
+Out [11]:
+     record_name  atom_number  ... charge line_idx
+0           ATOM            1  ...    NaN      557
+
 ```
 
 
