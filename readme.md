@@ -181,6 +181,10 @@ copy file from a remote host
 ```scp [user@]host:[path/to/file] /path/to/destination```
 e.g.
 ```scp james@1.1.1.1:~/Documents/results.csv .```
+
+## challenge
+use ```scp``` to copy the file ```important.webm``` to your local machine. what can you use to open the file?
+
 ## gzip
 it's often worth compressing files before sending them over a network. ```gzip <file>``` will compress ```<file>``` in a gzip ```.gz``` format ```gunzip <file>``` unzips gzip files.
 
@@ -275,4 +279,113 @@ Out [11]:
 ```
 
 
+# part 4 - hacking
+## what is hacking?
+a [hacker](http://www.catb.org/jargon/html/H/hacker.html) has a distinctive stereotype - a cyber criminal. this stereotype is a little misleading: hacking is more about an obsessive [mindset](http://www.catb.org/esr/faqs/hacker-howto.html)  than it is about breaking into computers. but today we're talking about breaking into computers so i'll use "hacker" to refer to [security hacking](https://en.wikipedia.org/wiki/Security_hacker).
 
+## why is this important?
+I got hacked! before xmas somebody broke into my server and used it to mount attacks on other servers! how? with a [dictionary attack](https://en.wikipedia.org/wiki/Dictionary_attack) - a brute force technique that uses a dictionary of common usernames & passwords to attempt a login. This is a common attack with a low sucess rate, so the attackers cast a wide net & target ip addresses indiscriminately. we can see all login attempts in ```/var/log/auth.log```
+```bash
+root@localhost:/var/log# grep "Failed password" auth.log | grep "Jan  6" | wc -l
+5407
+```
+on Jan 6 there were 5407 attempts to login! this isn't unusual - but where are they coming from? we can use a program caled ```geoiplookup``` to find out.```geoiplookup``` requires syntax like this: 
+```bash
+$ geoiplookup 124.156.139.91
+GeoIP Country Edition: HK, Hong Kong
+```
+I can extract all of the IP addresses from which I failed login attempts originated using grep:
+```bash
+# grep "Failed password" auth.log | grep "Jan  6" | grep -E -o "([0-9]{1,3}[\.]){3}[0-9]{1,3}" > /tmp/ips
+```
+I have three layers of filtering: lines with failed password attempts, lines that contain Jan 6 and finally i'm extracting the IP adress itself with a some ```regex``` magic; all of which I've directed to a temporary file ```/tmp/ips``` (```/tmp``` is for temporary files - they'll be deleted next time I reboot the machine. Here's how the file looks:
+```bash
+# head -3 /tmp/ips
+182.61.14.93
+213.194.99.235
+175.193.13.3
+```
+there are lots of entries!
+```bash
+# wc -l /tmp/ips
+5405
+```
+we can count the unique occurences of each IP address like this:
+```bash
+# sort /tmp/ips|uniq -c
+      6 64.225.75.212
+     20 65.191.76.227
+      5 66.207.69.154
+     18 67.207.92.19
+     10 73.43.46.235
+     26 77.93.226.210
+     ...
+# sort /tmp/ips|uniq > /tmp/uniqips # redirect unique ip addresses to a new file
+```
+```uniq``` can count the number of unique occurences of each IP address - but it only compares adjacent lines - so we group the addresses together with ```sort``` first.
+
+I put these in a file rather than piping directly into  ```geoiplocate``` because I couldn't quickly figure out how to ```|``` the IP adresses into ```geoiplocate```. **side note - ```xargs```** ```xargs``` is a tool that lets you ```|``` data into a program that doesn't normally take input from ```STDIN``` - you can use it like this: 
+#### xargs example
+
+We can loop through each line in ```/tmp/uniqips``` using a standard bash ```for``` loop like this:
+```bash
+for IP in $(cat /tmp/uniqips); do
+	geoiplookup $IP >> /tmp/iplocations
+done
+```
+great, now /tmp/locations has the country of origin of all of our attackers:
+```bash
+# head -3 /tmp/iplocations
+GeoIP Country Edition: CN, China
+GeoIP Country Edition: TR, Turkey
+GeoIP Country Edition: KR, Korea, Republic of
+```
+we can count the number of unique occurences of each country with ```uniq``` - which counts the number of unique occurences of each entry - **note** ```man uniq``` says that ```uniq``` only compares adjacent lines, so we'll need to ```sort``` the lines first:
+```bash
+# sort /tmp/iplocations| uniq -c|sort -nr
+```
+where ```uniq -c``` returns the number of occurences of each line like this:
+```bash
+# sort /tmp/iplocations |uniq -c |sort -nr
+    107 GeoIP Country Edition: CN, China
+     32 GeoIP Country Edition: US, United States
+     14 GeoIP Country Edition: SG, Singapore
+     14 GeoIP Country Edition: IN, India
+     11 GeoIP Country Edition: DE, Germany
+     10 GeoIP Country Edition: RU, Russian Federation
+      7 GeoIP Country Edition: KR, Korea, Republic of
+      7 GeoIP Country Edition: FR, France
+	...
+```
+and ```sort -nr``` sorts by numbers ```-n``` in reverse order ```-r```. 
+
+### defense from brute force attacks
+- **strong passwords!** - keep it obscure! a popular dictionary is [rockyou.txt](https://gitlab.com/kalilinux/packages/wordlists/blob/kali/master/rockyou.txt.gz) - a list of user passwords stolen from [rockyou](https://en.wikipedia.org/wiki/RockYou) - an online games company - in a 2009 data breach. rockyou stored all 32 million passwords unencrypted, which were distributed around the internet and offered insights into passwords. here are some popular ones: 
+  - 123456
+  - 12345
+  - 123456789
+  - password
+  - iloveyou
+please do better than that! use special characters mid-word and a mix of upper and lower case characters & numbers. check if passwords assosciated with your email addresses have been leaked in data breaches at [haveibeenpwned](https://haveibeenpwned.com/) - a free (& safe) service that aggregates and analyses password dumps from data breaches - info [here](https://en.wikipedia.org/wiki/Have_I_Been_Pwned%3F)
+- firewalls - block network traffic based on some predefined rules - a good one is UFW - [uncomplicated firewall](https://en.wikipedia.org/wiki/Uncomplicated_Firewall) - typically open source software is a good thing for security because it can be audited and improved at any time by any security expert.
+- ```fail2ban``` - blocks IP addresses that repeatedly attempt (& fail) to log in
+- antivirus! if a machine may have been compromised then it's a good idea to scan it for malware!```clamav``` is a good free and open source tool for this - it's probably not worth paying for antivirus unless you're looking for something very specific
+
+## they got in - what happened next?
+- the attacker changed the password to the compromised account
+- they installed malware in a hidden folder: ```.configrc``` - the malware was a collection of shell scripts that disabled any bitcoin mining programs (there were none on my machine) and started to attack other machines with the same brute force attack on other machines. I was notified by the linode - the server provider the next morning that my machine was attacking other linode machines. 
+- they tried to establish a persistent presence on the machine by adding a ```.ssh/authorized_keys``` file which contained an ssh key that would allow them to log in again!
+- I logged in and saw that the malicious software was saturating the cpu using ```vtop``` and ```htop``` - process monitoring utilities. ```htop``` allows users to kill their processes - of course the process belonged to the compormised account so it had to be killed from ```root``` - the all-powerful administrator account.  I removed the infected account and killed all processes it was running. 
+
+## is it over?
+- as far as i can tell, the attacker didn't breach any of the other accounts. If they did, then they may have created a back door into the machine via a reverse shell - where the infected machine sends an outgoing connection to the attacker - which are harder to detect. so: i don't think so.
+
+## interesting notes on the malware
+the malware made an attempt to "obfuscate" itself - it contained a ```base64``` encoded ```perl``` script like this:
+```bash
+echo "dfedsioanasip433tu849jgisoupanf89qw" | base64 --decode | perl
+```
+the decoded perl script attempted to connect via https to a server in the Netherlands to get lists of host machines to attack and credentials to attack with.
+
+## today's challenge! capture the flag (CTF)
+some summy has some important info!!

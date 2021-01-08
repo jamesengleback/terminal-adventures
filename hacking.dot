@@ -1,0 +1,8 @@
+digraph hack{
+	node [shape = box]
+	"gain entry" -> "establish persistent presence"
+	"establish persistent presence" -> "deploy payload"
+	"establish persistent presence" -> "escalate privelage"
+	"establish persistent presence" -> "exfiltrate data"
+	}
+	
