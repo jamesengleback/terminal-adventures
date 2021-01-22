@@ -405,7 +405,9 @@ in this session we'll look at some common attacks so we can better understand th
 1. establish persistent access to the machine
 2. deliver the payload - the attack itself
 
-**note that this tutorial is for education only! don't attack anyone without permission! **
+this tutorial also introduces some useful python concepts, namely running python programs from the command line and the standard library.
+
+**note that this tutorial is for education only! don't attack anyone without permission!**
 
 **also note: i'm not an expert!** 
 
@@ -433,8 +435,12 @@ ransomware is a common attack that encrypts a victim's data, who will be prompte
 ### wannacry
 wannacry was a crytoworm that spread indiscriminately across the world in 2017, exploiting a newly revlealed vulnerability in windows operating systems called ```eternal blue```. it spread quickly across the planet, affecting millions of machines, including many machines in the NHS. the worm demanded a payment in bitcoin for the files to be decrypted. It was stopped by security ressearcher Marcus Hutchins, who discovered a kill switch and activated it. wannacry caused billions of dollars of financial damage, as well as the human cost of crippling a health system. [https://en.wikipedia.org/wiki/WannaCry_ransomware_attack](https://en.wikipedia.org/wiki/WannaCry_ransomware_attack)
 ### maersk -  petya / notpetya
-maersk, a global shipping company was hit with a large scale, targeted ransomware attack in 2017. attackers gained access to the maersk network with the ```eternal blue``` vulnerability, just like wannacry. the ransomware program dubbed ```notpetya``` from the [petya](https://en.wikipedia.org/wiki/Petya_(malware)) family of ransomwares. their backups were also on the same network and were also hit. [https://www.reuters.com/article/us-cyber-attack-maersk-idUSKBN19I1NO](https://www.reuters.com/article/us-cyber-attack-maersk-idUSKBN19I1NO) 
-a good talk from the maersk head of cyber security gives a good talk about the incident here: [https://www.youtube.com/watch?v=wQ8HIjkEe9o&t=2214s&ab_channel=BlackHat](https://www.youtube.com/watch?v=wQ8HIjkEe9o&t=2214s&ab_channel=BlackHat)
+maersk, a global shipping company was hit with a large scale, targeted ransomware attack in 2017. attackers gained access to the maersk network with the ```eternal blue``` vulnerability, just like wannacry. the ransomware program dubbed ```notpetya``` from the [petya](https://en.wikipedia.org/wiki/Petya_(malware)) family of ransomwares. their backups were also on the same network and were also hit. 
+
+[https://www.reuters.com/article/us-cyber-attack-maersk-idUSKBN19I1NO](https://www.reuters.com/article/us-cyber-attack-maersk-idUSKBN19I1NO) 
+
+maersk head of cyber security gives a good talk about the incident here: [https://www.youtube.com/watch?v=wQ8HIjkEe9o&t=2214s&ab_channel=BlackHat](https://www.youtube.com/watch?v=wQ8HIjkEe9o&t=2214s&ab_channel=BlackHat)
+
 ### eurofins
 in 2019, eurofins scientific was crippled with a ransomware attack that halted their operations for some time. eurofins paid an undisclosed ammount to the attackers [https://www.bbc.co.uk/news/uk-48881959](https://www.bbc.co.uk/news/uk-48881959) 
 ### how does it work?
